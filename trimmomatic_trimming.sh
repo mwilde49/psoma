@@ -15,7 +15,7 @@ log() {
 }
 
 usage() {
-    log "Usage: $0 <CONFIG_DIR> <SAMPLES_FILE> <FASTQ_DIR> <PAIRED_END> <READ1_SUFFIX> <READ2_SUFFIX> <NUM_THREADS> <ILLUMINA_CLIP_FILE> <HEADCROP> <LEADING> <TRAILING> <SLIDINGWINDOW> <MINLEN> <ILLUMINACLIP_PARAMS>"
+    log "Usage: $0 <OUTPUT_DIRECTORY> <SAMPLES_FILE> <FASTQ_DIR> <PAIRED_END> <READ1_SUFFIX> <READ2_SUFFIX> <NUM_THREADS> <ILLUMINA_CLIP_FILE> <HEADCROP> <LEADING> <TRAILING> <SLIDINGWINDOW> <MINLEN> <ILLUMINACLIP_PARAMS>"
     exit 1
 }
 
@@ -23,7 +23,7 @@ if [ "$#" -ne 14 ]; then
     usage
 fi
 
-config_directory=$1
+output_directory=$1
 samples_file=$2
 fastq_dir=$3
 paired_end=$4
@@ -39,7 +39,7 @@ minlen=${13}
 illuminaclip_params=${14}
 
 # OUTPUT PATHS
-trim_output_fpath="${config_directory}/2_trim_output"
+trim_output_fpath="${output_directory}/2_trim_output"
 trim_log_fpath="${trim_output_fpath}/log"
 
 mkdir -p "${trim_output_fpath}" "${trim_log_fpath}"

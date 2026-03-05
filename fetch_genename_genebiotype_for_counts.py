@@ -1,15 +1,15 @@
 import os, sys, pandas as pd
 
 if len(sys.argv) != 3:
-    print("Usage: python fetch_genename_genebiotype_for_counts.py <CONFIG_DIRECTORY> <REF_FILE>")
+    print("Usage: python fetch_genename_genebiotype_for_counts.py <OUTPUT_DIRECTORY> <REF_FILE>")
     sys.exit(1)
 
-config_directory = sys.argv[1]
+output_directory = sys.argv[1]
 ref_file = sys.argv[2]
 
-raw_counts_dir = os.path.join(config_directory, '6_raw_counts_output')
-counts_file = os.path.join(config_directory, '6_raw_counts_output', 'raw_htseq_counts.csv')
-feature_counts_file = os.path.join(config_directory, '6_raw_counts_output', 'raw_feature_counts.csv')
+raw_counts_dir = os.path.join(output_directory, '6_raw_counts_output')
+counts_file = os.path.join(output_directory, '6_raw_counts_output', 'raw_htseq_counts.csv')
+feature_counts_file = os.path.join(output_directory, '6_raw_counts_output', 'raw_feature_counts.csv')
 
 if not os.path.isdir(raw_counts_dir):
     raise FileNotFoundError(f"Directory does not exist: {raw_counts_dir}")
@@ -31,5 +31,5 @@ feature_counts_df.columns = ['Gene_ID'] + list(feature_counts_df.columns[1:])
 counts_df = counts_df.merge(ref_df, on=['Gene_ID'], how='left')
 feature_counts_df = feature_counts_df.merge(ref_df, on=['Gene_ID'], how='left')
 
-counts_df.to_csv(os.path.join(config_directory, '6_raw_counts_output', 'raw_htseq_counts.csv'), index=False)
-feature_counts_df.to_csv(os.path.join(config_directory, '6_raw_counts_output', 'raw_feature_counts.csv'), index=False)
+counts_df.to_csv(os.path.join(output_directory, '6_raw_counts_output', 'raw_htseq_counts.csv'), index=False)
+feature_counts_df.to_csv(os.path.join(output_directory, '6_raw_counts_output', 'raw_feature_counts.csv'), index=False)

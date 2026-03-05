@@ -12,25 +12,26 @@ log() {
 }
 
 usage() {
-    echo -e "${RED}Usage:${NC} $0 <CONFIG_DIRECTORY> <NUM_THREADS> <REFERENCE_GTF> <STRAND_ST> <SPECIES>"
+    echo -e "${RED}Usage:${NC} $0 <OUTPUT_DIRECTORY> <CONFIG_DIRECTORY> <NUM_THREADS> <REFERENCE_GTF> <STRAND_ST> <SPECIES>"
     exit 1
 }
 
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 6 ]; then
     usage
 fi
 
-config_directory=$1
-num_threads=$2
-reference_gtf=$3
-strand_st=$4
-species=$5
+output_directory=$1
+config_directory=$2
+num_threads=$3
+reference_gtf=$4
+strand_st=$5
+species=$6
 
-cd $config_directory
+cd $output_directory
 
 # INPUT & OUTPUT PATHS
-filter_output_fpath="${config_directory}/4_filter_output"
-counts_output_fpath="${config_directory}/5_stringtie_counts_output"
+filter_output_fpath="${output_directory}/4_filter_output"
+counts_output_fpath="${output_directory}/5_stringtie_counts_output"
 counts_log_fpath="${counts_output_fpath}/log"
 
 mkdir -p ${counts_output_fpath} ${counts_log_fpath}
@@ -54,8 +55,8 @@ done
 
 # merging the stringtie outputs
 log "Merging stringtie outputs..."
-mkdir -p "${config_directory}/stringtie"
-cp -pr "${counts_output_fpath}"/*.tab "${config_directory}/stringtie"
+mkdir -p "${output_directory}/stringtie"
+cp -pr "${counts_output_fpath}"/*.tab "${output_directory}/stringtie"
 
 ls ./stringtie/ > sample_list
 FILE_NO=`cat sample_list | wc -l`
@@ -90,8 +91,8 @@ log "Done merging output!"
 FINISH_TIME=$(($(date +%s) - $START_TIME))
 log "$FILE_NO stringtie jobs finished in $FINISH_TIME seconds!"
 
-cp -pr "${config_directory}/stringtie/genes.tpm.txt" "${counts_output_fpath}"
-rm -rf  "${config_directory}/stringtie" "${config_directory}/sample_list" "${counts_output_fpath}/tmp_*"
+cp -pr "${output_directory}/stringtie/genes.tpm.txt" "${counts_output_fpath}"
+rm -rf  "${output_directory}/stringtie" "${output_directory}/sample_list" "${counts_output_fpath}/tmp_*"
 
 cd $counts_output_fpath
 

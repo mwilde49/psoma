@@ -15,31 +15,32 @@ log() {
 }
 
 usage() {
-    log "Usage: $0 <CONFIG_DIRECTORY> <REFERENCE_GTF> <PAIRED_END> <STRAND_HTS> <PAIRED_HTS> <SPECIES>"
+    log "Usage: $0 <OUTPUT_DIRECTORY> <CONFIG_DIRECTORY> <REFERENCE_GTF> <PAIRED_END> <STRAND_HTS> <PAIRED_HTS> <SPECIES>"
     exit 1
 }
 
-if [ "$#" -ne 6 ]; then
+if [ "$#" -ne 7 ]; then
     usage
 fi
 
-config_directory=$1
-reference_gtf=$2
-paired_end=$3
-strand_hts=$4
-paired_hts=$5
-species=$6
+output_directory=$1
+config_directory=$2
+reference_gtf=$3
+paired_end=$4
+strand_hts=$5
+paired_hts=$6
+species=$7
 
 if [ ! -f "$reference_gtf" ]; then
     echo -e "${RED}Error: Reference GTF file not found: $reference_gtf${NC}"
     exit 1
 fi
 
-cd "$config_directory" || { echo -e "${RED}Error: Config directory does not exist${NC}"; exit 1; }
+cd "$output_directory" || { echo -e "${RED}Error: Output directory does not exist${NC}"; exit 1; }
 
 # INPUT & OUTPUT PATHS
-filter_output_fpath="${config_directory}/4_filter_output"
-raw_counts_output_fpath="${config_directory}/6_raw_counts_output"
+filter_output_fpath="${output_directory}/4_filter_output"
+raw_counts_output_fpath="${output_directory}/6_raw_counts_output"
 raw_counts_log_fpath="${raw_counts_output_fpath}/log"
 merged_param_string=""
 header_param_string="Gene_ID,"
@@ -88,13 +89,13 @@ cd $raw_counts_output_fpath
 
 if [[ "$species" =~ ^[Hh][Uu][Mm][Aa][Nn]$ ]]; then
     ref_gene_id_name_human_file="${config_directory}/ref_human_geneid_genename_genebiotype.tsv"
-    python "${config_directory}/fetch_genename_genebiotype_for_counts.py" "${config_directory}" "${ref_gene_id_name_human_file}"
+    python "${config_directory}/fetch_genename_genebiotype_for_counts.py" "${output_directory}" "${ref_gene_id_name_human_file}"
 elif [[ "$species" =~ ^[Mm][Oo][Uu][Ss][Ee]$ ]]; then
     ref_gene_id_name_mouse_file="${config_directory}/ref_mouse_geneid_genename_genebiotype.tsv"
-    python "${config_directory}/fetch_genename_genebiotype_for_counts.py" "${config_directory}" "${ref_gene_id_name_mouse_file}"
+    python "${config_directory}/fetch_genename_genebiotype_for_counts.py" "${output_directory}" "${ref_gene_id_name_mouse_file}"
 elif [[ "$species" =~ ^[Rr][Aa][Tt][Tt][Uu][Ss]$ ]]; then
     ref_gene_id_name_rattus_file="${config_directory}/ref_rattus_geneid_genename_genebiotype.tsv"
-    python "${config_directory}/fetch_genename_genebiotype_for_counts.py" "${config_directory}" "${ref_gene_id_name_rattus_file}"
+    python "${config_directory}/fetch_genename_genebiotype_for_counts.py" "${output_directory}" "${ref_gene_id_name_rattus_file}"
 fi
 
 log "HTSeq counts generated successfully."

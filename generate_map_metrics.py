@@ -104,10 +104,10 @@ def write_to_csv(final_data, header, output_csv):
 if __name__ == "__main__":
 
     if len(sys.argv) != 3:
-        print("Usage: python generate_map_metrics.py <config_directory> <directory_with_hisat2_summaries>")
+        print("Usage: python generate_map_metrics.py <output_directory> <directory_with_hisat2_summaries>")
         sys.exit(1)
 
-    config_directory = sys.argv[1]
+    output_directory = sys.argv[1]
     directory = sys.argv[2]
 
     if not os.path.isdir(directory):
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     final_data, header = parse_all_summaries(directory)
 
-    os.makedirs(os.path.join(config_directory, "3_1_map_metrics_output_qc"), exist_ok=True)
-    output_csv = os.path.join(config_directory, "3_1_map_metrics_output_qc", "hisat2_summary.csv")
+    os.makedirs(os.path.join(output_directory, "3_1_map_metrics_output_qc"), exist_ok=True)
+    output_csv = os.path.join(output_directory, "3_1_map_metrics_output_qc", "hisat2_summary.csv")
     write_to_csv(final_data, header, output_csv)
     print(f"Summary CSV file saved as {output_csv}")

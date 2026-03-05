@@ -15,7 +15,7 @@ log() {
 }
 
 usage() {
-    log "Usage: $0 <CONFIG_DIRECTORY> <NUM_THREADS> <BLACKLIST_BED_FILE> <FILTER_BED_FILE>"
+    log "Usage: $0 <OUTPUT_DIRECTORY> <NUM_THREADS> <BLACKLIST_BED_FILE> <FILTER_BED_FILE>"
     exit 1
 }
 
@@ -23,17 +23,17 @@ if [ "$#" -ne 4 ]; then
     usage
 fi
 
-config_directory=$1
+output_directory=$1
 num_threads=$2
 blist_bed_file=$3
 exclude_bed_file=$4
 
-if [ ! -d "$config_directory" ]; then
-    echo -e "${RED}Error: Config directory not found: $config_directory${NC}"
+if [ ! -d "$output_directory" ]; then
+    echo -e "${RED}Error: Config directory not found: $output_directory${NC}"
     exit 1
 fi
 
-if [ ! -d "${config_directory}/3_hisat2_mapping_output" ]; then
+if [ ! -d "${output_directory}/3_hisat2_mapping_output" ]; then
     echo -e "${RED}Error: HISAT2 mapping output directory not found${NC}"
     exit 1
 fi
@@ -43,8 +43,8 @@ if [ ! -f "$blist_bed_file" ] && [ ! -f "$exclude_bed_file" ]; then
 fi
 
 # INPUT & OUTPUT PATHS
-map_output_fpath="${config_directory}/3_hisat2_mapping_output"
-filter_output_fpath="${config_directory}/4_filter_output"
+map_output_fpath="${output_directory}/3_hisat2_mapping_output"
+filter_output_fpath="${output_directory}/4_filter_output"
 filter_log_fpath="${filter_output_fpath}/log"
 
 mkdir -p "$filter_output_fpath" "$filter_log_fpath"

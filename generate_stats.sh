@@ -27,7 +27,7 @@ check_version() {
 }
 
 usage() {
-    log "Usage: $0 <CONFIG_DIRECTORY> <FASTQ_FILES> <PAIRED_END> <HEADCROP>"
+    log "Usage: $0 <OUTPUT_DIRECTORY> <FASTQ_FILES> <PAIRED_END> <HEADCROP>"
     exit 1
 }
 
@@ -36,24 +36,24 @@ if [ "$#" -ne 4 ]; then
     usage
 fi
 
-config_directory=$1
+output_directory=$1
 fastq_files=$2
 paired_end=$3
 headcrop=$4
 
-mkdir -p "${config_directory}" || { echo -e "${RED}Failed to create ${config_directory}${NC}"; exit 1; }
+mkdir -p "${output_directory}" || { echo -e "${RED}Failed to create ${output_directory}${NC}"; exit 1; }
 
-fastqc_multiqc_output_dir="${config_directory}/1_fastqc_and_multiqc_reports"
-trim_output_fpath="${config_directory}/2_trim_output"
-map_output_fpath="${config_directory}/3_hisat2_mapping_output"
-map_metrics_output_fpath="${config_directory}/3_1_map_metrics_output_qc"
-filter_output_fpath="${config_directory}/4_filter_output"
-qualimap_output_fpath="${config_directory}/4_1_qualimap_filter_output_qc"
-counts_output_fpath="${config_directory}/5_stringtie_counts_output"
-raw_counts_output_fpath="${config_directory}/6_raw_counts_output"
+fastqc_multiqc_output_dir="${output_directory}/1_fastqc_and_multiqc_reports"
+trim_output_fpath="${output_directory}/2_trim_output"
+map_output_fpath="${output_directory}/3_hisat2_mapping_output"
+map_metrics_output_fpath="${output_directory}/3_1_map_metrics_output_qc"
+filter_output_fpath="${output_directory}/4_filter_output"
+qualimap_output_fpath="${output_directory}/4_1_qualimap_filter_output_qc"
+counts_output_fpath="${output_directory}/5_stringtie_counts_output"
+raw_counts_output_fpath="${output_directory}/6_raw_counts_output"
 
 timestamp=$(date +"%Y%m%d_%H%M%S")
-log_file="${config_directory}/7_pipeline_stats_${timestamp}.log"
+log_file="${output_directory}/7_pipeline_stats_${timestamp}.log"
 
 {
   log "x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x"
@@ -62,7 +62,7 @@ log_file="${config_directory}/7_pipeline_stats_${timestamp}.log"
   log "x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x"
   log "x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x - x"
   log " "
-  log "Configuration Directory: ${config_directory}"
+  log "Configuration Directory: ${output_directory}"
   log "Fastq files: ${fastq_files}"
   log "Paired End: ${paired_end}"
   log "Headcrop: ${headcrop}"

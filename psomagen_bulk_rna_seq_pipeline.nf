@@ -36,30 +36,31 @@ process generate_fastqc_multiqc_reports {
 
     input:
     val config_directory
+    val output_directory
     val fastq_files
     val fastqc_cores
 
     output:
-    val "${config_directory}/1_fastqc_and_multiqc_reports", emit: fastqc_output
+    val "${output_directory}/1_fastqc_and_multiqc_reports", emit: fastqc_output
 
     script:
     """
-    mkdir -p "${config_directory}/0_nextflow_logs"
-    echo "[INFO] Starting FastQC and MultiQC at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/fastqc_multiqc.log
+    mkdir -p "${output_directory}/0_nextflow_logs"
+    echo "[INFO] Starting FastQC and MultiQC at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/fastqc_multiqc.log
 
     if [ ! -d "${fastq_files}" ]; then
-        echo "[ERROR] FASTQ files directory not found: ${fastq_files}" | tee -a ${config_directory}/0_nextflow_logs/fastqc_multiqc.log
+        echo "[ERROR] FASTQ files directory not found: ${fastq_files}" | tee -a ${output_directory}/0_nextflow_logs/fastqc_multiqc.log
         exit 1
     fi
 
-    echo 'bash ${config_directory}/generate_fastqc_reports.sh ${fastq_files} ${fastqc_cores} ${config_directory}'
-    bash ${config_directory}/generate_fastqc_reports.sh ${fastq_files} ${fastqc_cores} ${config_directory}
+    echo 'bash ${config_directory}/generate_fastqc_reports.sh ${fastq_files} ${fastqc_cores} ${output_directory}'
+    bash ${config_directory}/generate_fastqc_reports.sh ${fastq_files} ${fastqc_cores} ${output_directory}
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] FastQC failed on files in ${fastq_files}" | tee -a ${config_directory}/0_nextflow_logs/fastqc_multiqc.log
+        echo "[ERROR] FastQC failed on files in ${fastq_files}" | tee -a ${output_directory}/0_nextflow_logs/fastqc_multiqc.log
         exit 1
     fi
-    echo "[INFO] FastQC completed successfully for all FASTQ files" | tee -a ${config_directory}/0_nextflow_logs/fastqc_multiqc.log
+    echo "[INFO] FastQC completed successfully for all FASTQ files" | tee -a ${output_directory}/0_nextflow_logs/fastqc_multiqc.log
     """
 }
 
@@ -71,6 +72,7 @@ process trimmomatic_trimming {
 
     input:
     val config_directory
+    val output_directory
     val samples_file
     val fastq_files
     val is_paired_end
@@ -86,38 +88,38 @@ process trimmomatic_trimming {
     val illuminaclip_params
 
     output:
-    val "${config_directory}/2_trim_output", emit: trimmed_files
+    val "${output_directory}/2_trim_output", emit: trimmed_files
 
     script:
     """
-    mkdir -p "${config_directory}/0_nextflow_logs"
-    echo "[INFO] Starting Trimmomatic trimming at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
+    mkdir -p "${output_directory}/0_nextflow_logs"
+    echo "[INFO] Starting Trimmomatic trimming at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
 
     if [ ! -f "${samples_file}" ]; then
-        echo "[ERROR] Samples file not found: ${samples_file}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
+        echo "[ERROR] Samples file not found: ${samples_file}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
         exit 1
     fi
 
     if [ ! -d "${fastq_files}" ]; then
-        echo "[ERROR] FASTQ files directory not found: ${fastq_files}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
+        echo "[ERROR] FASTQ files directory not found: ${fastq_files}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
         exit 1
     fi
 
-    echo "[INFO] Running Trimmomatic with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
-    echo "  Samples file: ${samples_file}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
-    echo "  FASTQ directory: ${fastq_files}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
-    echo "  Paired-end: ${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
-    echo "  Threads: ${num_threads}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
-    echo "  HEADCROP: ${headcrop}" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
+    echo "[INFO] Running Trimmomatic with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
+    echo "  Samples file: ${samples_file}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
+    echo "  FASTQ directory: ${fastq_files}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
+    echo "  Paired-end: ${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
+    echo "  Threads: ${num_threads}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
+    echo "  HEADCROP: ${headcrop}" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
 
-    echo 'bash ${config_directory}/trimmomatic_trimming.sh ${config_directory} ${samples_file} ${fastq_files} ${is_paired_end} ${read1_suffix} ${read2_suffix} ${num_threads} ${illumina_clip_file} ${headcrop} ${leading} ${trailing} ${slidingwindow} ${minlen} ${illuminaclip_params}'
-    bash ${config_directory}/trimmomatic_trimming.sh ${config_directory} ${samples_file} ${fastq_files} ${is_paired_end} ${read1_suffix} ${read2_suffix} ${num_threads} ${illumina_clip_file} ${headcrop} ${leading} ${trailing} ${slidingwindow} ${minlen} ${illuminaclip_params}
+    echo 'bash ${config_directory}/trimmomatic_trimming.sh ${output_directory} ${samples_file} ${fastq_files} ${is_paired_end} ${read1_suffix} ${read2_suffix} ${num_threads} ${illumina_clip_file} ${headcrop} ${leading} ${trailing} ${slidingwindow} ${minlen} ${illuminaclip_params}'
+    bash ${config_directory}/trimmomatic_trimming.sh ${output_directory} ${samples_file} ${fastq_files} ${is_paired_end} ${read1_suffix} ${read2_suffix} ${num_threads} ${illumina_clip_file} ${headcrop} ${leading} ${trailing} ${slidingwindow} ${minlen} ${illuminaclip_params}
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] Trimmomatic trimming failed" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
+        echo "[ERROR] Trimmomatic trimming failed" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
         exit 1
     fi
-    echo "[INFO] Trimmomatic trimming completed successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/trimmomatic.log
+    echo "[INFO] Trimmomatic trimming completed successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/trimmomatic.log
     """
 }
 
@@ -129,6 +131,7 @@ process hisat2_mapping {
 
     input:
     val config_directory
+    val output_directory
     val samples_file
     val is_paired_end
     val read1_suffix
@@ -138,24 +141,24 @@ process hisat2_mapping {
     val trimmed_files
 
     output:
-    val "${config_directory}/3_hisat2_mapping_output", emit: mapped_files
+    val "${output_directory}/3_hisat2_mapping_output", emit: mapped_files
 
     script:
-    def trim_output_fpath = "${config_directory}/2_trim_output"
-    def map_output_fpath = "${config_directory}/3_hisat2_mapping_output"
+    def trim_output_fpath = "${output_directory}/2_trim_output"
+    def map_output_fpath = "${output_directory}/3_hisat2_mapping_output"
     def map_log_fpath = "${map_output_fpath}/log"
 
     """
-    mkdir -p "${config_directory}/0_nextflow_logs"
-    echo "[INFO] Starting HISAT2 mapping at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/hisat2_mapping.log
+    mkdir -p "${output_directory}/0_nextflow_logs"
+    echo "[INFO] Starting HISAT2 mapping at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/hisat2_mapping.log
 
     if [ ! -f "${samples_file}" ]; then
-        echo "[ERROR] Samples file not found: ${samples_file}" | tee -a ${config_directory}/0_nextflow_logs/hisat2_mapping.log
+        echo "[ERROR] Samples file not found: ${samples_file}" | tee -a ${output_directory}/0_nextflow_logs/hisat2_mapping.log
         exit 1
     fi
 
     if [ ! -d "${trim_output_fpath}" ]; then
-        echo "[ERROR] Trimmed files directory not found: ${trim_output_fpath}" | tee -a ${config_directory}/0_nextflow_logs/hisat2_mapping.log
+        echo "[ERROR] Trimmed files directory not found: ${trim_output_fpath}" | tee -a ${output_directory}/0_nextflow_logs/hisat2_mapping.log
         exit 1
     fi
 
@@ -183,7 +186,7 @@ process hisat2_mapping {
         fi
 
         if [ "\$?" -ne 0 ]; then
-            echo "[ERROR] HISAT2 mapping failed for sample: \${sample_name}" | tee -a ${config_directory}/0_nextflow_logs/hisat2_mapping.log
+            echo "[ERROR] HISAT2 mapping failed for sample: \${sample_name}" | tee -a ${output_directory}/0_nextflow_logs/hisat2_mapping.log
             exit 1
         fi
 
@@ -195,7 +198,7 @@ process hisat2_mapping {
         samtools index ${map_output_fpath}/\${sample_name}.sorted.bam 2> ${map_log_fpath}/\${sample_name}_indexing_step.log
     done
 
-    echo "[INFO] HISAT2 mapping process completed at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/hisat2_mapping.log
+    echo "[INFO] HISAT2 mapping process completed at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/hisat2_mapping.log
     """
 }
 
@@ -207,37 +210,38 @@ process generate_mapping_metrics {
 
     input:
     val config_directory
+    val output_directory
     val mapped_files
 
     output:
-    val "${config_directory}/3_1_map_metrics_output_qc", emit: map_metric_files
+    val "${output_directory}/3_1_map_metrics_output_qc", emit: map_metric_files
 
     script:
     """
-    echo "[INFO] Starting mapping metrics generation at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
+    echo "[INFO] Starting mapping metrics generation at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
 
     if [ ! -f "${config_directory}/generate_map_metrics.py" ]; then
-        echo "[ERROR] Mapping metrics script not found: ${config_directory}/generate_map_metrics.py" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
+        echo "[ERROR] Mapping metrics script not found: ${config_directory}/generate_map_metrics.py" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
         exit 1
     fi
 
-    if [ ! -d "${config_directory}/3_hisat2_mapping_output" ]; then
-        echo "[ERROR] HISAT2 mapping output directory not found: ${config_directory}/3_hisat2_mapping_output" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
+    if [ ! -d "${output_directory}/3_hisat2_mapping_output" ]; then
+        echo "[ERROR] HISAT2 mapping output directory not found: ${output_directory}/3_hisat2_mapping_output" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
         exit 1
     fi
 
-    echo "[INFO] Running mapping metrics with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
-    echo "  Config directory: ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
-    echo "  Mapped files directory: ${config_directory}/3_hisat2_mapping_output" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
+    echo "[INFO] Running mapping metrics with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
+    echo "  Output directory: ${output_directory}" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
+    echo "  Mapped files directory: ${output_directory}/3_hisat2_mapping_output" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
 
-    echo 'python "${config_directory}/generate_map_metrics.py" "${config_directory}" "${config_directory}/3_hisat2_mapping_output/log"' | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
-    python "${config_directory}/generate_map_metrics.py" "${config_directory}" "${config_directory}/3_hisat2_mapping_output/log" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
+    echo 'python "${config_directory}/generate_map_metrics.py" "${output_directory}" "${output_directory}/3_hisat2_mapping_output/log"' | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
+    python "${config_directory}/generate_map_metrics.py" "${output_directory}" "${output_directory}/3_hisat2_mapping_output/log" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
 
-    cd "${config_directory}/3_hisat2_mapping_output"
-    multiqc . | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
-    mkdir -p "${config_directory}/3_1_map_metrics_output_qc"
-    cp -pr multiqc_report.html multiqc_data "${config_directory}/3_1_map_metrics_output_qc" | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
-    rm -r multiqc_report.html multiqc_data | tee -a ${config_directory}/0_nextflow_logs/mapping_metrics.log
+    cd "${output_directory}/3_hisat2_mapping_output"
+    multiqc . | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
+    mkdir -p "${output_directory}/3_1_map_metrics_output_qc"
+    cp -pr multiqc_report.html multiqc_data "${output_directory}/3_1_map_metrics_output_qc" | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
+    rm -r multiqc_report.html multiqc_data | tee -a ${output_directory}/0_nextflow_logs/mapping_metrics.log
     """
 }
 
@@ -249,44 +253,45 @@ process filter_samples {
 
     input:
     val config_directory
+    val output_directory
     val num_threads
     val blist_bed_file
     val exclude_bed_file
     val mapped_files
 
     output:
-    val "${config_directory}/4_filter_output", emit: filtered_files
+    val "${output_directory}/4_filter_output", emit: filtered_files
 
     script:
     """
-    echo "[INFO] Starting filtering and deduplication at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+    echo "[INFO] Starting filtering and deduplication at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
 
     if [ ! -f "${config_directory}/dedup_and_filtering.sh" ]; then
-        echo "[ERROR] Deduplication and filtering script not found: ${config_directory}/dedup_and_filtering.sh" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+        echo "[ERROR] Deduplication and filtering script not found: ${config_directory}/dedup_and_filtering.sh" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
         exit 1
     fi
 
     if [ ! -f "${blist_bed_file}" ] && [ ! -f "${exclude_bed_file}" ]; then
-        echo "[ERROR] Both blacklist and exclude BED files are missing." | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+        echo "[ERROR] Both blacklist and exclude BED files are missing." | tee -a ${output_directory}/0_nextflow_logs/filtering.log
         exit 1
     fi
 
-    echo "[INFO] Running deduplication and filtering with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
-    echo "  Config directory: ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
-    echo "  Number of threads: ${num_threads}" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
-    echo "  Blacklist BED file: ${blist_bed_file}" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
-    echo "  Exclude BED file: ${exclude_bed_file}" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+    echo "[INFO] Running deduplication and filtering with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
+    echo "  Output directory: ${output_directory}" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
+    echo "  Number of threads: ${num_threads}" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
+    echo "  Blacklist BED file: ${blist_bed_file}" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
+    echo "  Exclude BED file: ${exclude_bed_file}" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
 
-    echo 'bash ${config_directory}/dedup_and_filtering.sh ${config_directory} ${num_threads} ${blist_bed_file} ${exclude_bed_file}' | tee -a ${config_directory}/0_nextflow_logs/filtering.log
-    bash ${config_directory}/dedup_and_filtering.sh ${config_directory} ${num_threads} ${blist_bed_file} ${exclude_bed_file} | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+    echo 'bash ${config_directory}/dedup_and_filtering.sh ${output_directory} ${num_threads} ${blist_bed_file} ${exclude_bed_file}' | tee -a ${output_directory}/0_nextflow_logs/filtering.log
+    bash ${config_directory}/dedup_and_filtering.sh ${output_directory} ${num_threads} ${blist_bed_file} ${exclude_bed_file} | tee -a ${output_directory}/0_nextflow_logs/filtering.log
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] Filtering and deduplication failed" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+        echo "[ERROR] Filtering and deduplication failed" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
         exit 1
     else
-        echo "[INFO] Filtering and deduplication completed successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+        echo "[INFO] Filtering and deduplication completed successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
     fi
 
-    echo "[INFO] Filtering process completed at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/filtering.log
+    echo "[INFO] Filtering process completed at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/filtering.log
     """
 }
 
@@ -298,6 +303,7 @@ process generate_stringtie_counts {
 
     input:
     val config_directory
+    val output_directory
     val num_threads
     val reference_gtf
     val strand_st
@@ -305,40 +311,41 @@ process generate_stringtie_counts {
     val filtered_files
 
     output:
-    val "${config_directory}/5_stringtie_counts_output", emit: counts_files
+    val "${output_directory}/5_stringtie_counts_output", emit: counts_files
 
     script:
     """
-    echo "[INFO] Starting StringTie counts generation at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "[INFO] Starting StringTie counts generation at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
 
     if [ ! -f "${config_directory}/generate_stringtie_counts.sh" ]; then
-        echo "[ERROR] StringTie counts script not found: ${config_directory}/generate_stringtie_counts.sh" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+        echo "[ERROR] StringTie counts script not found: ${config_directory}/generate_stringtie_counts.sh" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
         exit 1
     fi
 
     if [ ! -f "${reference_gtf}" ]; then
-        echo "[ERROR] Reference GTF file not found: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+        echo "[ERROR] Reference GTF file not found: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
         exit 1
     fi
 
-    echo "[INFO] Running StringTie with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
-    echo "  Config directory: ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
-    echo "  Number of threads: ${num_threads}" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
-    echo "  Reference GTF: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
-    echo "  Strand-specific: ${strand_st}" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
-    echo "  Species: ${species}" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "[INFO] Running StringTie with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "  Output directory: ${output_directory}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "  Config directory: ${config_directory}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "  Number of threads: ${num_threads}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "  Reference GTF: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "  Strand-specific: ${strand_st}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "  Species: ${species}" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
 
-    echo 'bash ${config_directory}/generate_stringtie_counts.sh ${config_directory} ${num_threads} ${reference_gtf} ${strand_st} ${species}' | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
-    bash ${config_directory}/generate_stringtie_counts.sh ${config_directory} ${num_threads} ${reference_gtf} ${strand_st} ${species} | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+    echo 'bash ${config_directory}/generate_stringtie_counts.sh ${output_directory} ${config_directory} ${num_threads} ${reference_gtf} ${strand_st} ${species}' | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
+    bash ${config_directory}/generate_stringtie_counts.sh ${output_directory} ${config_directory} ${num_threads} ${reference_gtf} ${strand_st} ${species} | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] StringTie counts generation failed" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+        echo "[ERROR] StringTie counts generation failed" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
         exit 1
     else
-        echo "[INFO] StringTie counts generated successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+        echo "[INFO] StringTie counts generated successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
     fi
 
-    echo "[INFO] StringTie counts process completed at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/stringtie_counts.log
+    echo "[INFO] StringTie counts process completed at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/stringtie_counts.log
     """
 }
 
@@ -350,42 +357,43 @@ process generate_qualimap_reports {
 
     input:
     val config_directory
+    val output_directory
     val reference_gtf
     val is_paired_end
     val num_threads
     val filtered_files
 
     output:
-    val "${config_directory}/4_1_qualimap_filter_output_qc", emit: qualimap_files
+    val "${output_directory}/4_1_qualimap_filter_output_qc", emit: qualimap_files
 
     script:
     """
-    echo "[INFO] Starting Qualimap report generation at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+    echo "[INFO] Starting Qualimap report generation at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
 
     if [ ! -f "${config_directory}/generate_qualimap_report.sh" ]; then
-        echo "[ERROR] Qualimap script not found: ${config_directory}/generate_qualimap_report.sh" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+        echo "[ERROR] Qualimap script not found: ${config_directory}/generate_qualimap_report.sh" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
         exit 1
     fi
 
     if [ ! -f "${reference_gtf}" ]; then
-        echo "[ERROR] GTF file not found: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+        echo "[ERROR] GTF file not found: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
         exit 1
     fi
 
-    echo "[INFO] Running Qualimap with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
-    echo "  Config directory: ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
-    echo "  GTF file: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
-    echo "  Paired-end: ${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
-    echo "  Filtered BAM files: ${filtered_files}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+    echo "[INFO] Running Qualimap with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
+    echo "  Output directory: ${output_directory}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
+    echo "  GTF file: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
+    echo "  Paired-end: ${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
+    echo "  Filtered BAM files: ${filtered_files}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
 
-    echo "bash ${config_directory}/generate_qualimap_report.sh ${config_directory} ${num_threads} ${reference_gtf} ${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
-    bash "${config_directory}/generate_qualimap_report.sh" "${config_directory}" "${num_threads}" "${reference_gtf}" "${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+    echo "bash ${config_directory}/generate_qualimap_report.sh ${output_directory} ${num_threads} ${reference_gtf} ${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
+    bash "${config_directory}/generate_qualimap_report.sh" "${output_directory}" "${num_threads}" "${reference_gtf}" "${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] Qualimap report generation failed" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+        echo "[ERROR] Qualimap report generation failed" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
         exit 1
     else
-        echo "[INFO] Qualimap report generation completed successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/qualimap_report.log
+        echo "[INFO] Qualimap report generation completed successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/qualimap_report.log
     fi
     """
 }
@@ -398,51 +406,52 @@ process generate_feature_counts {
 
     input:
     val config_directory
+    val output_directory
     val num_threads
     val reference_gtf
     val is_paired_end
     val filtered_files
 
     output:
-    val "${config_directory}/6_raw_counts_output", emit: feature_counts_files
+    val "${output_directory}/6_raw_counts_output", emit: feature_counts_files
 
     script:
     """
-    echo "[INFO] Starting feature counts generation at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+    echo "[INFO] Starting feature counts generation at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
 
     if [ ! -f "${config_directory}/rsubread_featurecount_script.R" ]; then
-        echo "[ERROR] Rsubread feature counts script not found: ${config_directory}/rsubread_featurecount_script.R" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+        echo "[ERROR] Rsubread feature counts script not found: ${config_directory}/rsubread_featurecount_script.R" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
         exit 1
     fi
 
     if [ ! -f "${reference_gtf}" ]; then
-        echo "[ERROR] Reference GTF file not found: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+        echo "[ERROR] Reference GTF file not found: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
         exit 1
     fi
 
-    cd "${config_directory}"
-    mkdir -p "${config_directory}/temp_feature_counts_dir"
-    cp -r "${config_directory}/4_filter_output"/*.filt.bam "${config_directory}/temp_feature_counts_dir"
+    cd "${output_directory}"
+    mkdir -p "${output_directory}/temp_feature_counts_dir"
+    cp -r "${output_directory}/4_filter_output"/*.filt.bam "${output_directory}/temp_feature_counts_dir"
 
-    echo "[INFO] Running featureCounts with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
-    echo "  Config directory: ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
-    echo "  Reference GTF: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
-    echo "  Paired-end: ${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
-    echo "  Filtered files directory: ${config_directory}/temp_feature_counts_dir" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+    echo "[INFO] Running featureCounts with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
+    echo "  Output directory: ${output_directory}" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
+    echo "  Reference GTF: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
+    echo "  Paired-end: ${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
+    echo "  Filtered files directory: ${output_directory}/temp_feature_counts_dir" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
 
-    mkdir -p "${config_directory}/6_raw_counts_output"
-    echo 'Rscript ${config_directory}/rsubread_featurecount_script.R "${config_directory}/temp_feature_counts_dir" ${reference_gtf} ${is_paired_end} ${num_threads} "${config_directory}/6_raw_counts_output/raw_feature_counts.csv"' | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
-    Rscript ${config_directory}/rsubread_featurecount_script.R "${config_directory}/temp_feature_counts_dir" ${reference_gtf} ${is_paired_end} ${num_threads} "${config_directory}/6_raw_counts_output/raw_feature_counts.csv" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
-    rm -r "${config_directory}/temp_feature_counts_dir"
+    mkdir -p "${output_directory}/6_raw_counts_output"
+    echo 'Rscript ${config_directory}/rsubread_featurecount_script.R "${output_directory}/temp_feature_counts_dir" ${reference_gtf} ${is_paired_end} ${num_threads} "${output_directory}/6_raw_counts_output/raw_feature_counts.csv"' | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
+    Rscript ${config_directory}/rsubread_featurecount_script.R "${output_directory}/temp_feature_counts_dir" ${reference_gtf} ${is_paired_end} ${num_threads} "${output_directory}/6_raw_counts_output/raw_feature_counts.csv" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
+    rm -r "${output_directory}/temp_feature_counts_dir"
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] Feature counts generation failed" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+        echo "[ERROR] Feature counts generation failed" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
         exit 1
     else
-        echo "[INFO] Feature counts generated successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+        echo "[INFO] Feature counts generated successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
     fi
 
-    echo "[INFO] Feature counts process completed at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/feature_counts.log
+    echo "[INFO] Feature counts process completed at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/feature_counts.log
     """
 }
 
@@ -454,6 +463,7 @@ process generate_raw_counts {
 
     input:
     val config_directory
+    val output_directory
     val reference_gtf
     val is_paired_end
     val strand_hts
@@ -462,40 +472,41 @@ process generate_raw_counts {
     val feature_counts_files
 
     output:
-    val "${config_directory}/6_raw_counts_output", emit: raw_counts_files
+    val "${output_directory}/6_raw_counts_output", emit: raw_counts_files
 
     script:
     """
-    echo "[INFO] Starting raw counts generation with HTSeq at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+    echo "[INFO] Starting raw counts generation with HTSeq at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
 
     if [ ! -f "${config_directory}/generate_raw_counts.sh" ]; then
-        echo "[ERROR] HTSeq-count script not found: ${config_directory}/generate_raw_counts.sh" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+        echo "[ERROR] HTSeq-count script not found: ${config_directory}/generate_raw_counts.sh" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
         exit 1
     fi
 
     if [ ! -f "${reference_gtf}" ]; then
-        echo "[ERROR] Reference GTF file not found: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+        echo "[ERROR] Reference GTF file not found: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
         exit 1
     fi
 
-    echo "[INFO] Running HTSeq-count with the following parameters:" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
-    echo "  Config directory: ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
-    echo "  Reference GTF: ${reference_gtf}" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
-    echo "  Paired-end: ${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
-    echo "  Strand: ${strand_hts}" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
-    echo "  Paired HTSeq option: ${paired_hts}" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+    echo "[INFO] Running HTSeq-count with the following parameters:" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    echo "  Output directory: ${output_directory}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    echo "  Config directory: ${config_directory}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    echo "  Reference GTF: ${reference_gtf}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    echo "  Paired-end: ${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    echo "  Strand: ${strand_hts}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    echo "  Paired HTSeq option: ${paired_hts}" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
 
-    echo 'bash ${config_directory}/generate_raw_counts.sh ${config_directory} ${reference_gtf} ${is_paired_end} ${strand_hts} ${paired_hts} ${species}' | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
-    bash ${config_directory}/generate_raw_counts.sh ${config_directory} ${reference_gtf} ${is_paired_end} ${strand_hts} ${paired_hts} ${species} | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+    echo 'bash ${config_directory}/generate_raw_counts.sh ${output_directory} ${config_directory} ${reference_gtf} ${is_paired_end} ${strand_hts} ${paired_hts} ${species}' | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
+    bash ${config_directory}/generate_raw_counts.sh ${output_directory} ${config_directory} ${reference_gtf} ${is_paired_end} ${strand_hts} ${paired_hts} ${species} | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] HTSeq-count generation failed" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+        echo "[ERROR] HTSeq-count generation failed" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
         exit 1
     else
-        echo "[INFO] HTSeq-count generated successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+        echo "[INFO] HTSeq-count generated successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
     fi
 
-    echo "[INFO] Raw counts process completed at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/htseq_counts.log
+    echo "[INFO] Raw counts process completed at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/htseq_counts.log
     """
 }
 
@@ -507,6 +518,7 @@ process generate_stats {
 
     input:
     val config_directory
+    val output_directory
     val fastq_files
     val is_paired_end
     val headcrop
@@ -514,26 +526,26 @@ process generate_stats {
 
     script:
     """
-    echo "[INFO] Starting stats generation at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
+    echo "[INFO] Starting stats generation at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
 
     if [ ! -f "${config_directory}/generate_stats.sh" ]; then
-        echo "[ERROR] generate_stats.sh script not found in ${config_directory}" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
+        echo "[ERROR] generate_stats.sh script not found in ${config_directory}" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
         exit 1
     fi
 
-    echo "[INFO] Running stats with the following inputs:" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
-    echo "  Fastq files: ${fastq_files}" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
-    echo "  Paired end: ${is_paired_end}" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
-    echo "  Headcrop: ${headcrop}" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
+    echo "[INFO] Running stats with the following inputs:" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
+    echo "  Fastq files: ${fastq_files}" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
+    echo "  Paired end: ${is_paired_end}" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
+    echo "  Headcrop: ${headcrop}" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
 
-    echo "bash ${config_directory}/generate_stats.sh ${config_directory} ${fastq_files} ${is_paired_end} ${headcrop}" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
-    bash ${config_directory}/generate_stats.sh ${config_directory} ${fastq_files} ${is_paired_end} ${headcrop} | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
+    echo "bash ${config_directory}/generate_stats.sh ${output_directory} ${fastq_files} ${is_paired_end} ${headcrop}" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
+    bash ${config_directory}/generate_stats.sh ${output_directory} ${fastq_files} ${is_paired_end} ${headcrop} | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
 
     if [ "\$?" -ne 0 ]; then
-        echo "[ERROR] Stats generation failed" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
+        echo "[ERROR] Stats generation failed" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
         exit 1
     else
-        echo "[INFO] Stats generation completed successfully at \$(date)" | tee -a ${config_directory}/0_nextflow_logs/7_pipeline_stats.log
+        echo "[INFO] Stats generation completed successfully at \$(date)" | tee -a ${output_directory}/0_nextflow_logs/7_pipeline_stats.log
     fi
     """
 }
@@ -543,6 +555,7 @@ workflow {
 
     // input parameters
     config_directory = params.config_directory
+    output_directory = params.output_directory
     fastq_files = params.fastq_files
     samples_file = params.samples_file
     fastqc_cores = params.fastqc_cores
@@ -573,11 +586,13 @@ workflow {
     // logging
     log.info " "
     log.info "Config directory: ${config_directory}"
+    log.info "Output directory: ${output_directory}"
     log.info "Fastq files directory: ${fastq_files}"
     log.info " "
 
     // Assertions to ensure that critical parameters are set
     assert config_directory != null : "ERROR: 'config_directory' must be defined!"
+    assert output_directory != null : "ERROR: 'output_directory' must be defined!"
     assert fastq_files != null : "ERROR: 'fastq_files' must be defined!"
     assert samples_file != null : "ERROR: 'samples_file' must be defined!"
     assert fastqc_cores != null : "ERROR: 'fastqc_cores' must be defined!"
@@ -587,9 +602,9 @@ workflow {
     // Running FastQC and MultiQC Reports
     if (params.run_fastqc) {
         log.info "Running FastQC and MultiQC"
-        println "FastQC and MultiQC output directory: ${config_directory}/1_fastqc_and_multiqc_reports"
+        println "FastQC and MultiQC output directory: ${output_directory}/1_fastqc_and_multiqc_reports"
         println "No. of cores to be used for generating FastQC reports: ${fastqc_cores}"
-        fastqc_output = generate_fastqc_multiqc_reports(config_directory, fastq_files, fastqc_cores)
+        fastqc_output = generate_fastqc_multiqc_reports(config_directory, output_directory, fastq_files, fastqc_cores)
     }
 
     if (params.run_rna_pipeline) {
@@ -605,45 +620,45 @@ workflow {
     if (params.run_rna_pipeline) {
         // Trimmomatic trimming
         log.info "Running Trimmomatic Trimming"
-        println "Trimmomatic output directory: ${config_directory}/2_trim_output"
+        println "Trimmomatic output directory: ${output_directory}/2_trim_output"
         trimmed_files = trimmomatic_trimming(
-            config_directory, samples_file, fastq_files, is_paired_end, read1_suffix, read2_suffix,
+            config_directory, output_directory, samples_file, fastq_files, is_paired_end, read1_suffix, read2_suffix,
             fastqc_cores, illumina_clip_file, headcrop, leading, trailing, slidingwindow, minlen, illuminaclip_params
         )
 
         // HISAT2 Mapping
         log.info "Running HISAT2 Mapping"
-        println "HISAT2 mapping output directory: ${config_directory}/3_hisat2_mapping_output"
+        println "HISAT2 mapping output directory: ${output_directory}/3_hisat2_mapping_output"
         mapped_files = hisat2_mapping(
-            config_directory, samples_file, is_paired_end, read1_suffix, read2_suffix,
+            config_directory, output_directory, samples_file, is_paired_end, read1_suffix, read2_suffix,
             fastqc_cores, hisat2_index, trimmed_files.trimmed_files
         )
 
         // Generating mapping metrics
         log.info "Generating Mapping Metrics"
-        map_metric_files = generate_mapping_metrics(config_directory, mapped_files.mapped_files)
+        map_metric_files = generate_mapping_metrics(config_directory, output_directory, mapped_files.mapped_files)
 
         // Filtering, deduplication and indexing
         log.info "Running Filtering and Deduplication"
-        println "Filtering, deduplication and sorting output directory: ${config_directory}/4_filter_output"
-        filtered_files = filter_samples(config_directory, fastqc_cores, blist_bed_file, exclude_bed_file, mapped_files.mapped_files)
+        println "Filtering, deduplication and sorting output directory: ${output_directory}/4_filter_output"
+        filtered_files = filter_samples(config_directory, output_directory, fastqc_cores, blist_bed_file, exclude_bed_file, mapped_files.mapped_files)
 
         // Generate Qualimap reports
         log.info "Running Qualimap for quality control"
-        println "Generating qualimap reports for filtered BAM files: ${config_directory}/4_1_qualimap_filter_output_qc"
-        qualimap_files = generate_qualimap_reports(config_directory, reference_gtf, is_paired_end, fastqc_cores, filtered_files.filtered_files)
+        println "Generating qualimap reports for filtered BAM files: ${output_directory}/4_1_qualimap_filter_output_qc"
+        qualimap_files = generate_qualimap_reports(config_directory, output_directory, reference_gtf, is_paired_end, fastqc_cores, filtered_files.filtered_files)
 
         // Generating stringtie and raw-counts
         log.info "Running StringTie and Raw Counts Generation"
-        println "Generating StringTie and raw counts in: ${config_directory}/5_stringtie_counts_output and ${config_directory}/6_raw_counts_output"
-        stringtie_files = generate_stringtie_counts(config_directory, fastqc_cores, reference_gtf, strand_st, species, filtered_files.filtered_files)
-        feature_count_files = generate_feature_counts(config_directory, fastqc_cores, reference_gtf, is_paired_end, filtered_files.filtered_files)
-        raw_count_files = generate_raw_counts(config_directory, reference_gtf, is_paired_end, strand_hts, paired_hts, species, feature_count_files.feature_counts_files)
+        println "Generating StringTie and raw counts in: ${output_directory}/5_stringtie_counts_output and ${output_directory}/6_raw_counts_output"
+        stringtie_files = generate_stringtie_counts(config_directory, output_directory, fastqc_cores, reference_gtf, strand_st, species, filtered_files.filtered_files)
+        feature_count_files = generate_feature_counts(config_directory, output_directory, fastqc_cores, reference_gtf, is_paired_end, filtered_files.filtered_files)
+        raw_count_files = generate_raw_counts(config_directory, output_directory, reference_gtf, is_paired_end, strand_hts, paired_hts, species, feature_count_files.feature_counts_files)
 
         // Generate Stats
         log.info "Generating Pipeline Stats"
-        println "Generating Stats for the current run: ${config_directory}/7_pipeline_stats_<TIMESTAMP>.log"
-        generate_stats(config_directory, fastq_files, is_paired_end, headcrop, feature_count_files.feature_counts_files)
+        println "Generating Stats for the current run: ${output_directory}/7_pipeline_stats_<TIMESTAMP>.log"
+        generate_stats(config_directory, output_directory, fastq_files, is_paired_end, headcrop, feature_count_files.feature_counts_files)
 
     }
 }

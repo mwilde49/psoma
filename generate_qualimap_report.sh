@@ -15,7 +15,7 @@ log() {
 }
 
 usage() {
-    log "Usage: $0 <CONFIG_DIRECTORY> <NUM_THREADS> <REFERENCE_GTF> <PAIRED_END (true/false)>"
+    log "Usage: $0 <OUTPUT_DIRECTORY> <NUM_THREADS> <REFERENCE_GTF> <PAIRED_END (true/false)>"
     exit 1
 }
 
@@ -23,7 +23,7 @@ if [ "$#" -ne 4 ]; then
     usage
 fi
 
-config_directory=$1
+output_directory=$1
 num_threads=$2
 ref_genome_file=$3
 paired_end=$4
@@ -31,8 +31,8 @@ paired_end=$4
 memory_size="10G"
 
 # INPUT & OUTPUT PATHS
-filter_output_fpath="${config_directory}/4_filter_output"
-qualimap_output_fpath="${config_directory}/4_1_qualimap_filter_output_qc"
+filter_output_fpath="${output_directory}/4_filter_output"
+qualimap_output_fpath="${output_directory}/4_1_qualimap_filter_output_qc"
 
 mkdir -p "${qualimap_output_fpath}"
 cd "${qualimap_output_fpath}"
