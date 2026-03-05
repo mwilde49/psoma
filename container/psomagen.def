@@ -1,0 +1,85 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Author Matthew Wilde
+    Description Apptainer container for the Psomagen Bulk RNA-Seq Nextflow Pipeline
+    Version 1.0.0
+    Tools FastQC MultiQC HISAT2 Trimmomatic Samtools Sambamba Bedtools StringTie HTSeq Qualimap R Rsubread Python pandas Nextflow
+
+%environment
+    export PATH=/opt/conda/bin:$PATH
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+    export JAVA_HOME=/opt/conda
+    export PYTHONNOUSERSITE=1
+
+%post
+    apt-get update && apt-get install -y --no-install-recommends \
+        wget \
+        curl \
+        git \
+        bzip2 \
+        ca-certificates \
+        procps \
+        openssh-client \
+        libfontconfig1 \
+    && rm -rf /var/lib/apt/lists/*
+
+    # Install Miniforge (mamba + conda)
+    wget -q https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh \
+        -O /tmp/miniforge.sh
+    bash /tmp/miniforge.sh -b -p /opt/conda
+    rm /tmp/miniforge.sh
+
+    # Configure channels: conda-forge > bioconda > defaults (strict priority)
+    /opt/conda/bin/conda config --add channels defaults
+    /opt/conda/bin/conda config --add channels bioconda
+    /opt/conda/bin/conda config --add channels conda-forge
+    /opt/conda/bin/conda config --set channel_priority strict
+
+    # Install all tools in a single solve for global consistency
+    /opt/conda/bin/mamba install -y \
+        python=3.12 \
+        openjdk=17 \
+        fastqc \
+        multiqc \
+        hisat2 \
+        trimmomatic \
+        samtools \
+        sambamba \
+        bedtools \
+        stringtie \
+        htseq \
+        qualimap \
+        r-base \
+        bioconductor-rsubread \
+        pandas \
+        nextflow \
+    && /opt/conda/bin/conda clean -afy \
+    && /opt/conda/bin/pip cache purge \
+    && rm -rf /opt/conda/pkgs/*
+
+%runscript
+    exec nextflow "$@"
+
+%test
+    echo "=== Verifying tool installations ==="
+    fastqc --version
+    multiqc --version
+    hisat2 --version 2>&1 | head -1
+    trimmomatic -version 2>&1 | head -1
+    samtools --version | head -1
+    sambamba --version 2>&1 | head -1
+    bedtools --version
+    stringtie --version
+    htseq-count --version 2>&1 | head -1
+    qualimap --version 2>&1 | head -1 || true
+    R --version | head -1
+    Rscript -e 'library(Rsubread); cat(paste("Rsubread", packageVersion("Rsubread"), "\n"))'
+    python --version
+    python -c 'import pandas; print(f"pandas {pandas.__version__}")'
+    # Nextflow needs a writable home dir; skip version check during build
+    which nextflow && echo "Nextflow: $(nextflow -v 2>/dev/null || echo 'installed (version check requires writable home)')"
+    java -version 2>&1 | head -1
+    echo "=== All tools verified ==="

@@ -1,0 +1,26 @@
+# Apptainer images
+*.sif
+
+# Source reference files (not part of repo)
+HISAT2_index/
+HISAT2_pipeline_files/
+
+# Python
+__pycache__/
+*.pyc
+
+# R
+.Rhistory
+.RData
+
+# Nextflow
+.nextflow/
+.nextflow.log*
+work/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/

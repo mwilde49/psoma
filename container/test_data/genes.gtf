@@ -1,0 +1,12 @@
+chr_test	test	gene	500	1200	.	+	.	gene_id "ENSG00000000001.1"; transcript_id "ENST00000000001.1"; gene_type "protein_coding"; gene_name "TEST_GENE_A";
+chr_test	test	transcript	500	1200	.	+	.	gene_id "ENSG00000000001.1"; transcript_id "ENST00000000001.1"; gene_type "protein_coding"; gene_name "TEST_GENE_A";
+chr_test	test	exon	500	800	.	+	.	gene_id "ENSG00000000001.1"; transcript_id "ENST00000000001.1"; gene_type "protein_coding"; gene_name "TEST_GENE_A"; exon_number 1;
+chr_test	test	exon	900	1200	.	+	.	gene_id "ENSG00000000001.1"; transcript_id "ENST00000000001.1"; gene_type "protein_coding"; gene_name "TEST_GENE_A"; exon_number 2;
+chr_test	test	gene	2500	3500	.	-	.	gene_id "ENSG00000000002.1"; transcript_id "ENST00000000002.1"; gene_type "protein_coding"; gene_name "TEST_GENE_B";
+chr_test	test	transcript	2500	3500	.	-	.	gene_id "ENSG00000000002.1"; transcript_id "ENST00000000002.1"; gene_type "protein_coding"; gene_name "TEST_GENE_B";
+chr_test	test	exon	2500	2900	.	-	.	gene_id "ENSG00000000002.1"; transcript_id "ENST00000000002.1"; gene_type "protein_coding"; gene_name "TEST_GENE_B"; exon_number 1;
+chr_test	test	exon	3100	3500	.	-	.	gene_id "ENSG00000000002.1"; transcript_id "ENST00000000002.1"; gene_type "protein_coding"; gene_name "TEST_GENE_B"; exon_number 2;
+chr_test	test	gene	5500	6300	.	+	.	gene_id "ENSG00000000003.1"; transcript_id "ENST00000000003.1"; gene_type "lncRNA"; gene_name "TEST_LNCRNA";
+chr_test	test	transcript	5500	6300	.	+	.	gene_id "ENSG00000000003.1"; transcript_id "ENST00000000003.1"; gene_type "lncRNA"; gene_name "TEST_LNCRNA";
+chr_test	test	exon	5500	5800	.	+	.	gene_id "ENSG00000000003.1"; transcript_id "ENST00000000003.1"; gene_type "lncRNA"; gene_name "TEST_LNCRNA"; exon_number 1;
+chr_test	test	exon	6000	6300	.	+	.	gene_id "ENSG00000000003.1"; transcript_id "ENST00000000003.1"; gene_type "lncRNA"; gene_name "TEST_LNCRNA"; exon_number 2;

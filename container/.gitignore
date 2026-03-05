@@ -1,0 +1,4 @@
+*.sif
+.nextflow/
+.nextflow.log*
+work/
